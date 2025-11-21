@@ -1,13 +1,26 @@
-# Archivo generado con el código proporcionado por el usuario
+# ==========================================
+# 🎬 Grafo conexo Disney (versión en español)
+# ==========================================
 
-peliculas = {
+peliculas = [
+    "Piratas del Caribe: La maldición del Perla Negra",
+    "El Llanero Solitario",
+    "Alicia en el País de las Maravillas",
+    "Cenicienta",
+    "Asesinato en el Expreso de Oriente",
+    "En el Bosque",
+    "El Regreso de Mary Poppins",
+    "La Bella y la Bestia"
+]
+
+elencos = {
     "Piratas del Caribe: La maldición del Perla Negra": [
         "Johnny Depp", "Orlando Bloom", "Keira Knightley", "Geoffrey Rush"
     ],
-    "El llanero solitario": [
+    "El Llanero Solitario": [
         "Johnny Depp", "Armie Hammer", "Helena Bonham Carter", "William Fichtner"
     ],
-    "Alicia en el país de las maravillas": [
+    "Alicia en el País de las Maravillas": [
         "Johnny Depp", "Helena Bonham Carter", "Anne Hathaway", "Mia Wasikowska"
     ],
     "Cenicienta": [
@@ -16,10 +29,10 @@ peliculas = {
     "Asesinato en el Expreso de Oriente": [
         "Kenneth Branagh", "Johnny Depp", "Judi Dench", "Daisy Ridley", "Penélope Cruz", "Emma Thompson"
     ],
-    "En el bosque": [
+    "En el Bosque": [
         "Meryl Streep", "Emily Blunt", "James Corden", "Anna Kendrick", "Johnny Depp"
     ],
-    "El regreso de Mary Poppins": [
+    "El Regreso de Mary Poppins": [
         "Emily Blunt", "Lin-Manuel Miranda", "Meryl Streep", "Colin Firth", "Ben Whishaw"
     ],
     "La Bella y la Bestia": [
@@ -27,16 +40,35 @@ peliculas = {
     ]
 }
 
-actor = input("Ingrese el nombre del actor o actriz: ").strip()
+# Crear grafo
+G = Graph(multiedges=True, loops=True)
+G.add_vertices(peliculas)
 
-encontrado = False
+# Conexiones entre películas que comparten actores
+for p1 in peliculas:
+    for p2 in peliculas:
+        if p1 < p2:
+            comunes = set(elencos[p1]).intersection(elencos[p2])
+            for actor in comunes:
+                G.add_edge(p1, p2, label=actor)
 
-for pelicula, elenco in peliculas.items():
-    if actor in elenco:
-        encontrado = True
-        otros = [a for a in elenco if a != actor]
-        print(f"\n{actor} participó en '{pelicula}' junto a:")
-        print(" - " + "\n - ".join(otros))
+# Bucles para actores exclusivos (que solo aparecen en una película)
+for peli, elenco in elencos.items():
+    for actor in elenco:
+        if sum(actor in elencos[p] for p in peliculas) == 1:
+            G.add_edge(peli, peli, label=actor)
 
-if not encontrado:
-    print(f"El actor o actriz '{actor}' no hace parte del grafo.")
+# Mostrar si el grafo es conexo
+print("¿Es conexo el grafo?:", G.is_connected())
+if not G.is_connected():
+    print(" Componentes desconectados:", G.connected_components())
+
+# Visualización del grafo
+G.plot(
+    vertex_size=2500,
+    vertex_color="lightyellow",
+    vertex_labels=True,
+    edge_labels=True,
+    layout="spring",
+    figsize=[26, 20]
+).show()
